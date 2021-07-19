@@ -27,6 +27,14 @@ class AdsController {
                 message: 'error'
             })
 
+            console.log(ads);
+
+            if ( !ads ) {
+                return res.json({
+                    message: 'empty'
+                })
+            }
+
             res.json(ads)
         })
 

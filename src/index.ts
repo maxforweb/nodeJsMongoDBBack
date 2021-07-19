@@ -12,10 +12,16 @@ app.use(bodyParser.json());
 const User = new UserController;
 const Ad = new AdsController;
 
+mongoose.set('bufferCommands', false);
+
 mongoose.connect('mongodb://localhost:27017/clean', {
   useNewUrlParser: true, 
   useUnifiedTopology: true,
   useFindAndModify: false
+}).
+catch( error => {
+  let handleError: any = error;
+  console.log(handleError);
 });
 
 app.get( '/user/:id', User.index )
