@@ -35,12 +35,14 @@ class UserController {
 
         const user = new UserModel(postData);
         
-        user.save().then( (obj: any) => {
-          res.json( obj );
-        }).catch( (err: any) => {
-          res.json(err)
-        } );
-      
+        user.save()
+            .then( (obj: any) => {
+            res.json( obj );
+            })
+            .catch( (err: any) => {
+            res.json(err)
+            } );
+            
       }
 
       delete ( req: express.Request, res: express.Response ) {

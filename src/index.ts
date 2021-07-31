@@ -16,7 +16,7 @@ const Ad = new AdsController;
 
 mongoose.set('bufferCommands', false);
 
-mongoose.connect('mongodb://localhost:27017/clean', {
+mongoose.connect('mongodb+srv://TechUser:321ewqdas@gocleancluster.ukkxs.mongodb.net/clean?retryWrites=true&w=majority', {
   useNewUrlParser: true, 
   useUnifiedTopology: true,
   useFindAndModify: false
