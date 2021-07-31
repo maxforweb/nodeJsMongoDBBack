@@ -5,10 +5,12 @@ import {UserModel} from '../models';
 class UserController {
 
     index ( req: express.Request, res: express.Response) {
-        const id: string = req.params.id;
-        
-        UserModel.findById( id, (err, user) => {
+        const email: string = req.params.email;
+        // const password : string = req.params.password;
+        // console.log(password)
+        UserModel.findOne( {email : email}, (err, user) => {
             if( err ) {
+                console.log(err);
                 return res.status(404).json({
                     message: "Not found"
                 })

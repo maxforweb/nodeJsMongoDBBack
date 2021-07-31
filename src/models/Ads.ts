@@ -5,7 +5,7 @@ import { IUser } from './User';
 export interface IAd extends Document {
     owner:   IUser | string,
     title: string,
-    subtitle: string,
+    description: string,
     img: string,
     price: string,
     address: string,
@@ -18,7 +18,7 @@ const AdSchema = new Schema({
         type: String,
         require: "title is required",
     },
-    subtitle: {
+    description: {
         type: String,
     },
     img: String,

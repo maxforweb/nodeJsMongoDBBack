@@ -1,6 +1,7 @@
 import express from 'express'
 import mongoose from 'mongoose'
 import bodyParser from 'body-parser';
+import cors from 'cors';
 
 import {UserController, AdsController} from './controllers';
 
@@ -8,6 +9,7 @@ const app = express()
 const port = 3000
 
 app.use(bodyParser.json());
+app.use(cors());
 
 const User = new UserController;
 const Ad = new AdsController;
@@ -18,7 +20,7 @@ mongoose.connect('mongodb://localhost:27017/clean', {
   useFindAndModify: false
 });
 
-app.get( '/user/:id', User.index )
+app.get( '/user/:email', User.index )
 app.delete( '/user/:id', User.delete );
 app.post( '/user/create', User.create )
 

@@ -21,6 +21,7 @@
     "validator": "^13.1.17"
   },
   "devDependencies": {
+    "@types/cors": "^2.8.10",
     "@types/node": "^14.14.7",
     "json-server": "^0.16.2",
     "ts-node": "^9.0.0",

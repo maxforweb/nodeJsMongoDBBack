@@ -22,6 +22,7 @@ class AdsController {
     getAll ( req: express.Request, res: express.Response ) {
         
         AdModel.find()
+        .populate('owner')
         .exec( function (err, ads) {
             if ( err ) return res.json({
                 message: 'error'
@@ -37,7 +38,7 @@ class AdsController {
 
         const postData = {
             title: req.body.title,
-            subtitle: req.body.subtitle,
+            description: req.body.description,
             price: req.body.price,
             address: req.body.address,
             area: req.body.area,
@@ -66,7 +67,7 @@ class AdsController {
             .findByIdAndUpdate( adId, updateData, { new: true } )
             .exec( function ( err, ad ) {
                 if(err) return res.json({
-                    message : " An error was "
+                    message : " An error was occured"
                 })
 
                 res.json( ad );
