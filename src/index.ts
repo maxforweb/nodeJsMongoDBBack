@@ -18,7 +18,7 @@ app.use('/api', router);
 
 mongoose.set('bufferCommands', false);
 
-mongoose.connect('mongodb+srv://TechUser:321ewqdas@gocleancluster.ukkxs.mongodb.net/clean?retryWrites=true&w=majority', {
+mongoose.connect('mongodb+srv://TechUser:07hopore@gocleancluster.ukkxs.mongodb.net/clean?retryWrites=true&w=majority', {
   useNewUrlParser: true, 
   useUnifiedTopology: true,
   useFindAndModify: false,

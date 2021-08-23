@@ -14,6 +14,7 @@ router.post( '/user/login', User.loginUser );
 router.get( '/user', User.getAll );
 router.get( '/activate/:link', User.activateUser );
 router.post( '/user/logout', User.logout );
+router.post( '/user/refresh', User.refreshToken );
 
 router.get( '/ads/:id', Ad.index );
 router.get( '/ads', Ad.getAll );

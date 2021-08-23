@@ -15,7 +15,7 @@ class UserController {
 
         UserModel.findOne( {email : email}, (err, user) => {
             if( err ) {
-                console.log(err);
+                // console.log(err);
                 return res.status(404).json({
                     message: "Not found"
                 })
@@ -126,7 +126,7 @@ class UserController {
         return res.json({
             tokens,
             user: userDto
-            });
+        });
 
     }
 
@@ -169,6 +169,46 @@ class UserController {
             }
 
             return res.redirect('http://localhost:8080/');
+        });
+    }
+
+    async refreshToken ( req: express.Request, res: express.Response ) {
+        const {refreshToken} = req.cookies;
+        
+        if ( !refreshToken ) {
+            return res.json({
+                status: 404,
+                message: "missing refresh token"
+            });
+        }
+
+        const userData: any = TokenHelper.validateRefreshToken( refreshToken ); 
+        const tokenFromDB = await TokenHelper.findToken( refreshToken ); 
+
+        if ( !userData || !tokenFromDB ) {
+            return res.json({
+                status: 404,
+                message: "wrong token"
+            });
+        }
+
+        const user = await UserModel.findById( userData.id );
+        if ( !user ) {
+            return res.json({
+                status: 404,
+                message: "user not found"
+            })
+        }
+        const userDto = new UserDto( user );
+        const tokens = TokenHelper.generateToken( { ...userDto } );
+
+        TokenHelper.saveToken( user._id, tokens.refreshToken );
+        
+        res.cookie('refreshToken', tokens.refreshToken, {maxAge: 30 * 24 * 60 * 60 * 1000, httpOnly: true} );
+
+        return res.json({
+            tokens,
+            user: userDto
         });
     }
     

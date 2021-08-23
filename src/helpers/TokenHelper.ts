@@ -15,6 +15,24 @@ class TokenHelper {
 
     }
 
+    validateAccessToken ( accessToken: any) {
+        try {
+            const userData = jwt.verify( accessToken, 'jwt-access-onehanded-pirate' );
+            return userData;
+        } catch (error) {
+            return error;
+        }
+    }
+
+    validateRefreshToken ( refreshToken: any) {
+        try {
+            const userData = jwt.verify( refreshToken, 'jwt-resfresh-onehanded-pirate' );
+            return userData;
+        } catch (error) {
+            return error
+        }
+    }
+
     async saveToken (userId: any, refreshToken: string ) {
 
         const tokenData = await TokenModel.findOne( {user: userId} );
@@ -40,6 +58,14 @@ class TokenHelper {
 
         return token; 
 
+    }
+
+    
+    async findToken ( refreshToken: string ) {
+
+        const token = await TokenModel.findOne({token: refreshToken});
+    
+        return token;
     }
 
     async deleteToken ( refreshToken: string ) {
