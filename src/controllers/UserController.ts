@@ -1,13 +1,18 @@
 import express from 'express'
+import bcrypt, { hash } from 'bcrypt';
+import {v4} from 'uuid';
+
+import { UserDto } from '../dtos';
+
 import {UserModel} from '../models';
 
+import {MailHelper, TokenHelper} from '../helpers';
 
 class UserController {
 
-    index ( req: express.Request, res: express.Response) {
+    findUserByEmail ( req: express.Request, res: express.Response) {
         const email: string = req.params.email;
-        // const password : string = req.params.password;
-        // console.log(password)
+
         UserModel.findOne( {email : email}, (err, user) => {
             if( err ) {
                 console.log(err);
@@ -19,33 +24,123 @@ class UserController {
         })
     }
 
-    getMe() {
+    getAll( req: express.Request, res: express.Response ) {
+        UserModel.find()
+        .exec( function (err, users) {
+            if ( err ) return res.json({
+                message: 'error'
+            })
 
+
+            if ( !users ) {
+                return res.json({
+                    message: 'empty'
+                })
+            }
+
+            res.json(users)
+        })
     }
 
-    create (req: express.Request, res: express.Response) {
+    async registrateUser (req: express.Request, res: express.Response) {
   
+        const hashPassword = bcrypt.hashSync(req.body.password, 3);
+    
+        const activationLink = v4();
+
         const postData = { 
-          email: req.body.email,
-          fullName: req.body.fullName,
-          phone: req.body.phone,
-          lastName: req.body.lastName,
-          password: req.body.password,
+
+            email: req.body.email,
+            fullName: req.body.fullName,
+            phone: req.body.phone,
+            lastName: req.body.lastName,
+            password: hashPassword,
+            confirm_hash: activationLink,
+
         }
 
-        const user = new UserModel(postData);
+        const user = await UserModel.findOne({ $or: [ { email: postData.email }, { phone: postData.phone } ] });
+         
+        if ( user ) {
+            return res.status(400).json({
+                message: "Такой пользователь уже существует"
+            });
+        }
+
+        const newUser =  new UserModel(postData);
+        const userDto = new UserDto( newUser );
         
-        user.save()
+        const tokens = TokenHelper.generateToken( {...userDto} );
+
+        TokenHelper.saveToken( userDto.id, tokens.refreshToken );
+        
+        res.cookie('refreshToken', tokens.refreshToken, {maxAge: 30 * 24 * 60 * 60 * 1000, httpOnly: true} );
+        
+        MailHelper.sendActivationMail(userDto.emial, "http://localhost:3000/api/activate/" + activationLink);
+
+        newUser.save()
             .then( (obj: any) => {
-            res.json( obj );
+
+
+            res.json({ 
+                tokens,
+                user: userDto
+            });
+
             })
             .catch( (err: any) => {
             res.json(err)
             } );
             
-      }
+    }
 
-      delete ( req: express.Request, res: express.Response ) {
+    async loginUser ( req: express.Request, res: express.Response ) {
+        const email = req.body.email;
+        const password = req.body.password;
+
+        const user = await UserModel.findOne({email: email});
+
+        if ( !user ) {
+            return res.status(404).json({
+                status: 404,
+                message: "User doesn't exist"
+            })
+        }
+
+        const existPass = await bcrypt.compare( password, user.password );
+
+        if ( !existPass ) {
+            return res.status(400).json( {
+                status: 400,
+                message: "Wrong password"
+            } )
+        }
+
+        const userDto = new UserDto( user );
+        const tokens = TokenHelper.generateToken( { ...userDto } );
+
+        TokenHelper.saveToken( user._id, tokens.refreshToken );
+        
+        res.cookie('refreshToken', tokens.refreshToken, {maxAge: 30 * 24 * 60 * 60 * 1000, httpOnly: true} );
+
+        return res.json({
+            tokens,
+            user: userDto
+            });
+
+    }
+
+    async logout ( req: express.Request, res: express.Response ) {
+
+        const {refreshToken} = req.cookies;
+        const token = await TokenHelper.deleteToken(refreshToken);
+        
+        res.clearCookie("refreshToken");
+        
+        return res.json(token);
+    }
+
+    delete ( req: express.Request, res: express.Response ) {
         const id: string = req.params.id;
 
         UserModel.findOneAndRemove( { _id: id } )
@@ -61,7 +156,22 @@ class UserController {
                 message
             })
         })
-      }
+    }
+
+    activateUser ( req: express.Request, res: express.Response ) {
+        const link = req.params.link;
+
+        UserModel
+        .findOneAndUpdate( {confirm_hash: link}, {confirmed: true}, { new: true })
+        .exec( ( err, user ) => {
+            if ( err ) {
+                return res.json(err);
+            }
+
+            return res.redirect('http://localhost:8080/');
+        });
+    }
+    
 }
 
 export default UserController;
