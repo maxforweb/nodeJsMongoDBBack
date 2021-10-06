@@ -6,7 +6,7 @@ class AdsController {
     index ( req: express.Request, res: express.Response ) {
 
         const reqId: string = req.params.id;
-
+        // console.log( req );
         AdModel
         .find().or([ { owner: reqId }, { _id: reqId } ])
         .populate('owner')

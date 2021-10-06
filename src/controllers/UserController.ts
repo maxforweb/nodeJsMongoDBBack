@@ -59,7 +59,8 @@ class UserController {
 
         }
 
-        const user = await UserModel.findOne({ $or: [ { email: postData.email }, { phone: postData.phone } ] });
+        const model = UserModel;
+        const user = await model.findOne({ $or: [ { email: postData.email }, { phone: postData.phone } ] });
          
         if ( user ) {
             return res.status(400).json({
@@ -77,7 +78,7 @@ class UserController {
         res.cookie('refreshToken', tokens.refreshToken, {maxAge: 30 * 24 * 60 * 60 * 1000, httpOnly: true} );
         
         MailHelper.sendActivationMail(userDto.emial, "http://localhost:3000/api/activate/" + activationLink);
-
+        
         newUser.save()
             .then( (obj: any) => {
 

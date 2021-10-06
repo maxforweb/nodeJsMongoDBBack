@@ -12,7 +12,6 @@ export interface IUser extends Document {
     avatar: string;
     confirm_hash: string;
     last_seen: Date
-
 }
 
 const UserSchema = new Schema({
@@ -24,7 +23,7 @@ const UserSchema = new Schema({
     },
     phone: {
         type: String,
-        required: "Phone number is required",
+        // required: "Phone number is required",
         validate: [isMobilePhone, "Invalid phone number"],
         unique: true
     },
@@ -46,10 +45,12 @@ const UserSchema = new Schema({
     },
     confirm_hash: String,
     last_seen: Date,
+    
 }, {
     timestamps: true,
 })
 
 const UserModel = mongoose.model<IUser>( "User" , UserSchema)
+
 
 export default UserModel;
