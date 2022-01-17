@@ -9,7 +9,7 @@ class MailHelper {
     constructor () {
         this.host = 'smtp.gmail.com';
         this.login = 'maxkapustian@gmail.com';
-        this.password = '07hopore';
+        this.password = 'jaghir-naXgaj-nywpu8';
 
         this.transporter = nodemailer.createTransport({
             host: this.host,
@@ -37,6 +37,9 @@ class MailHelper {
                         <a href="${link}"> ${link} </a>
                     </div>
                 `
+        })
+        .catch( ( err: object ) => {
+            throw err;
         })
     }
 }

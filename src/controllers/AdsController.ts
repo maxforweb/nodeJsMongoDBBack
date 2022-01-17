@@ -47,10 +47,12 @@ class AdsController {
             title: req.body.title,
             description: req.body.description,
             price: req.body.price,
-            address: req.body.address,
+            address: req.body.adress,
             area: req.body.area,
             owner: req.body.owner
         }
+
+        console.log(postData)
 
         const newAd = new AdModel( postData );
 

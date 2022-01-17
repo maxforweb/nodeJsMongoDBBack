@@ -15,7 +15,6 @@ class UserController {
 
         UserModel.findOne( {email : email}, (err, user) => {
             if( err ) {
-                // console.log(err);
                 return res.status(404).json({
                     message: "Not found"
                 })
@@ -45,13 +44,13 @@ class UserController {
     async registrateUser (req: express.Request, res: express.Response) {
   
         const hashPassword = bcrypt.hashSync(req.body.password, 3);
-    
+        
         const activationLink = v4();
 
         const postData = { 
 
             email: req.body.email,
-            fullName: req.body.fullName,
+            fullName: req.body.name,
             phone: req.body.phone,
             lastName: req.body.lastName,
             password: hashPassword,
@@ -60,8 +59,8 @@ class UserController {
         }
 
         const model = UserModel;
-        const user = await model.findOne({ $or: [ { email: postData.email }, { phone: postData.phone } ] });
-         
+        const user = await model.findOne({ email: postData.email  });
+        
         if ( user ) {
             return res.status(400).json({
                 message: "Такой пользователь уже существует"
@@ -82,11 +81,10 @@ class UserController {
         newUser.save()
             .then( (obj: any) => {
 
-
-            res.json({ 
-                tokens,
-                user: userDto
-            });
+                res.json({ 
+                    tokens,
+                    user: userDto
+                });
 
             })
             .catch( (err: any) => {
@@ -169,17 +167,18 @@ class UserController {
                 return res.json(err);
             }
 
-            return res.redirect('http://localhost:8080/');
+            return res.redirect('http://localhost:8080/login');
         });
     }
 
     async refreshToken ( req: express.Request, res: express.Response ) {
+        
         const {refreshToken} = req.cookies;
         
         if ( !refreshToken ) {
-            return res.json({
-                status: 404,
-                message: "missing refresh token"
+            return res.status(401).json({
+                status: 401,
+                message: "user not authenticated"
             });
         }
 
@@ -188,8 +187,8 @@ class UserController {
 
         if ( !userData || !tokenFromDB ) {
             return res.json({
-                status: 404,
-                message: "wrong token"
+                status: 401,
+                message: "user not authenticated"
             });
         }
 

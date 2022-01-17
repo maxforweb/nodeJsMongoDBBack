@@ -25,7 +25,7 @@
     "nodemon": "^2.0.12",
     "socket.io": "^3.0.1",
     "uuid": "^8.3.2",
-    "validator": "^13.1.17"
+    "validator": "^13.7.0"
   },
   "devDependencies": {
     "@types/bcrypt": "^5.0.0",

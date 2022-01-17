@@ -13,7 +13,7 @@ export interface IAd extends Document {
 }
 
 const AdSchema = new Schema({
-    owner: { type: Schema.Types.ObjectId, ref: "User" },
+    owner: { type: Schema.Types.ObjectId, ref: "User", required: true },
     title: {
         type: String,
         require: "title is required",

@@ -7,10 +7,14 @@ import router from './router';
 
 const app = express()
 const port = 3000
+const origin = 'http://localhost:8080';
 
 app.use(express.json());
 app.use(cookieParser());
-app.use(cors());
+app.use(cors({
+  credentials: true,
+  origin: true
+}));
 app.use('/api', router);
 
 // const User = new UserController;

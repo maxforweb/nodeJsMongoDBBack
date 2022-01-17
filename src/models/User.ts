@@ -5,7 +5,6 @@ import isMobilePhone from 'validator/lib/isMobilePhone';
 export interface IUser extends Document {
     email: string;
     fullName: string;
-    phone: string;
     lastName: string;
     password: string;
     confirmed: boolean;
@@ -19,12 +18,6 @@ const UserSchema = new Schema({
         type: String,
         required: "Email is required",
         validate: [isEmail, "Invalid Email"],
-        unique: true
-    },
-    phone: {
-        type: String,
-        // required: "Phone number is required",
-        validate: [isMobilePhone, "Invalid phone number"],
         unique: true
     },
     avatar: String,
