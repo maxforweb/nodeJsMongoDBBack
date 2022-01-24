@@ -76,7 +76,7 @@ class UserController {
         
         res.cookie('refreshToken', tokens.refreshToken, {maxAge: 30 * 24 * 60 * 60 * 1000, httpOnly: true} );
         
-        MailHelper.sendActivationMail(userDto.emial, "http://localhost:3000/api/activate/" + activationLink);
+        MailHelper.sendActivationMail(userDto.email, "http://localhost:3000/api/activate/" + activationLink);
         
         newUser.save()
             .then( (obj: any) => {
@@ -100,7 +100,7 @@ class UserController {
         const user = await UserModel.findOne({email: email});
 
         if ( !user ) {
-            return res.status(404).json({
+            return res.json({
                 status: 404,
                 message: "User doesn't exist"
             })
@@ -109,8 +109,8 @@ class UserController {
         const existPass = await bcrypt.compare( password, user.password );
 
         if ( !existPass ) {
-            return res.status(400).json( {
-                status: 400,
+            return res.json( {
+                status: 403,
                 message: "Wrong password"
             } )
         }
@@ -124,7 +124,8 @@ class UserController {
 
         return res.json({
             tokens,
-            user: userDto
+            user: userDto,
+            status: 200
         });
 
     }
@@ -210,6 +211,53 @@ class UserController {
             tokens,
             user: userDto
         });
+    }
+
+    async updateUser ( req: express.Request, res: express.Response ) {
+        const userId = req.body.id;
+
+        if ( !userId ) {
+            return res.json({
+                sattus: 403,
+                message: 'Auth error'
+            })
+        }
+
+        const updateData = {
+            email: req.body.email,
+            fullName: req.body.name,
+            lastName: req.body.lastName,
+            phone: req.body.phone,
+        }
+
+        const options = {
+            new: true,
+            upsert: true,
+        }
+
+        const model = UserModel;
+
+        model
+            .findByIdAndUpdate( userId, { $set: updateData}, options )
+            .then( user => {
+                if ( user ) {
+                    const userDto = new UserDto( user );
+
+                    res.json({
+                        status: 200,
+                        user: userDto,
+                        message: "User sucesfully updated"
+                    })
+                } else {
+                    res.json({
+                        status: 400,
+                        message: 'Something went wrong'
+                    })
+                }
+            })
+            .catch( error => {
+                res.json(error);
+            })
     }
     
 }

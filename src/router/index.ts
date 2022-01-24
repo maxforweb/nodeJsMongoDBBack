@@ -16,12 +16,13 @@ router.get( '/user', User.getAll );
 router.get( '/activate/:link', User.activateUser );
 router.post( '/user/logout', User.logout );
 router.get( '/refreshToken', User.refreshToken );
+router.post( '/user/update', User.updateUser );
 
-router.get( '/ads/:id', Ad.index );
-router.get( '/ads', Ad.getAll );
-router.delete( '/ads/:id', Ad.delete);
-router.post( '/ads/create', Ad.create );
-router.post( '/ads/update/:id', Ad.update );
+router.get( '/posts/:id', Ad.index );
+router.get( '/posts', Ad.getAll );
+router.delete( '/posts/:id', Ad.delete);
+router.post( '/posts/create', Ad.create );
+router.post( '/posts/update/:id', Ad.update );
 
 router.get ('/calendar-note/getAll', CalendarNote.getAll );
 router.delete ('/calendar-note/deleteNote/:id', CalendarNote.deleteNote );

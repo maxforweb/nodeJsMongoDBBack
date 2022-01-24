@@ -8,6 +8,7 @@ export interface IUser extends Document {
     lastName: string;
     password: string;
     confirmed: boolean;
+    phone: string;
     avatar: string;
     confirm_hash: string;
     last_seen: Date
@@ -31,6 +32,9 @@ const UserSchema = new Schema({
     password: {
         type: String,
         required: true
+    },
+    phone: {
+        type: String,
     },
     confirmed: {
         type: Boolean,
