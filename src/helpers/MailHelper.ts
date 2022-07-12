@@ -23,8 +23,8 @@ class MailHelper {
 
     }    
 
-    sendActivationMail ( to: string, link: string ) {
-        console.log(link);
+    async sendActivationMail ( to: string, link: string ): Promise<void> {
+        
         this.transporter.sendMail({
             from: this.login,
             to,
@@ -40,6 +40,24 @@ class MailHelper {
         })
         .catch( ( err: object ) => {
             throw err;
+        })
+    }
+
+    async sendResetPasswordEmail ( to: string, link: string ): Promise<void> {
+        this.transporter.sendMail({
+            from: this.login,
+            to,
+            subject: "Запрос на восстановление пароля для сервиса GoClean",
+            text: '',
+            html: 
+            `
+                <div>
+                    <h1> Для восстановления пароля перейдите по ссылке ниже </h1>
+                    <a href="${link}" > ${link} </a> 
+                </div>
+            `
+        }).catch((err: object) => {
+            throw err
         })
     }
 }

@@ -17,6 +17,10 @@ router.get( '/activate/:link', User.activateUser );
 router.post( '/user/logout', User.logout );
 router.get( '/refreshToken', User.refreshToken );
 router.post( '/user/update', User.updateUser );
+router.post( '/user/change-pass', User.changeUserPassword );
+router.post( '/user/avatar', User.uploadAvatar );
+router.post( '/user/resetPassword', User.resetPassword );
+router.post( '/reset-link/:link', User.resetPassword );
 
 router.get( '/posts/:id', Ad.index );
 router.get( '/posts', Ad.getAll );

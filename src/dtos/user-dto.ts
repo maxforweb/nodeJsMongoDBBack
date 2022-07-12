@@ -7,6 +7,7 @@ export default class UserDto  {
     name: string;
     phone: string;
     lastName: string;
+    avatar: string;
     
 
     constructor( model: IUser ){
@@ -16,5 +17,6 @@ export default class UserDto  {
         this.name = model.fullName;
         this.phone = model.phone ? model.phone : '';
         this.lastName = model.lastName ? model.lastName : '';
+        this.avatar = model.avatar ? model.avatar : "";
     }
 }

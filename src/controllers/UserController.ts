@@ -1,16 +1,17 @@
 import express from 'express'
 import bcrypt, { hash } from 'bcrypt';
 import {v4} from 'uuid';
+import fileUpload from 'express-fileupload'
+import fs from 'fs';
 
 import { UserDto } from '../dtos';
-
-import {UserModel} from '../models';
-
-import {MailHelper, TokenHelper} from '../helpers';
+import { UserModel } from '../models';
+import { MailHelper, TokenHelper } from '../helpers';
+import { IUser } from '../models/User';
+import { Model } from 'mongoose';
 
 class UserController {
-
-    findUserByEmail ( req: express.Request, res: express.Response) {
+    public async findUserByEmail ( req: express.Request, res: express.Response): Promise<void> {
         const email: string = req.params.email;
 
         UserModel.findOne( {email : email}, (err, user) => {
@@ -23,7 +24,7 @@ class UserController {
         })
     }
 
-    getAll( req: express.Request, res: express.Response ) {
+    public async getAll( req: express.Request, res: express.Response ): Promise<void> {
         UserModel.find()
         .exec( function (err, users) {
             if ( err ) return res.json({
@@ -41,25 +42,23 @@ class UserController {
         })
     }
 
-    async registrateUser (req: express.Request, res: express.Response) {
+    public async registrateUser (req: express.Request, res: express.Response) {
   
         const hashPassword = bcrypt.hashSync(req.body.password, 3);
         
         const activationLink = v4();
 
-        const postData = { 
-
+        const postData: Partial<IUser> = { 
             email: req.body.email,
             fullName: req.body.name,
             phone: req.body.phone,
             lastName: req.body.lastName,
             password: hashPassword,
             confirm_hash: activationLink,
-
         }
 
-        const model = UserModel;
-        const user = await model.findOne({ email: postData.email  });
+        const model: Model<IUser, {}> = UserModel;
+        const user: IUser | null = await model.findOne({ email: postData.email  });
         
         if ( user ) {
             return res.status(400).json({
@@ -67,7 +66,7 @@ class UserController {
             });
         }
 
-        const newUser =  new UserModel(postData);
+        const newUser =  new UserModel( postData );
         const userDto = new UserDto( newUser );
         
         const tokens = TokenHelper.generateToken( {...userDto} );
@@ -76,7 +75,7 @@ class UserController {
         
         res.cookie('refreshToken', tokens.refreshToken, {maxAge: 30 * 24 * 60 * 60 * 1000, httpOnly: true} );
         
-        MailHelper.sendActivationMail(userDto.email, "http://localhost:3000/api/activate/" + activationLink);
+        MailHelper.sendActivationMail( userDto.email, "http://localhost:3000/api/activate/" + activationLink );
         
         newUser.save()
             .then( (obj: any) => {
@@ -88,16 +87,16 @@ class UserController {
 
             })
             .catch( (err: any) => {
-            res.json(err)
+                res.json(err)
             } );
             
     }
 
     async loginUser ( req: express.Request, res: express.Response ) {
-        const email = req.body.email;
-        const password = req.body.password;
+        const email: string = req.body.email;
+        const password: string = req.body.password;
 
-        const user = await UserModel.findOne({email: email});
+        const user: IUser | null = await UserModel.findOne({email: email});
 
         if ( !user ) {
             return res.json({
@@ -106,7 +105,7 @@ class UserController {
             })
         }
 
-        const existPass = await bcrypt.compare( password, user.password );
+        const existPass: boolean = await bcrypt.compare( password, user.password );
 
         if ( !existPass ) {
             return res.json( {
@@ -115,10 +114,10 @@ class UserController {
             } )
         }
 
-        const userDto = new UserDto( user );
+        const userDto: UserDto = new UserDto( user );
         const tokens = TokenHelper.generateToken( { ...userDto } );
 
-        TokenHelper.saveToken( user._id, tokens.refreshToken );
+        await TokenHelper.saveToken( user._id, tokens.refreshToken );
         
         res.cookie('refreshToken', tokens.refreshToken, {maxAge: 30 * 24 * 60 * 60 * 1000, httpOnly: true} );
 
@@ -140,7 +139,7 @@ class UserController {
         return res.json(token);
     }
 
-    delete ( req: express.Request, res: express.Response ) {
+    public async delete ( req: express.Request, res: express.Response ) {
         const id: string = req.params.id;
 
         UserModel.findOneAndRemove( { _id: id } )
@@ -158,7 +157,7 @@ class UserController {
         })
     }
 
-    activateUser ( req: express.Request, res: express.Response ) {
+    public async activateUser ( req: express.Request, res: express.Response ) {
         const link = req.params.link;
 
         UserModel
@@ -168,11 +167,11 @@ class UserController {
                 return res.json(err);
             }
 
-            return res.redirect('http://localhost:8080/login');
+            return res.redirect('http://localhost:8080');
         });
     }
 
-    async refreshToken ( req: express.Request, res: express.Response ) {
+    public async refreshToken ( req: express.Request, res: express.Response ) {
         
         const {refreshToken} = req.cookies;
         
@@ -188,7 +187,7 @@ class UserController {
 
         if ( !userData || !tokenFromDB ) {
             return res.json({
-                status: 401,
+                status: 403,
                 message: "user not authenticated"
             });
         }
@@ -213,7 +212,7 @@ class UserController {
         });
     }
 
-    async updateUser ( req: express.Request, res: express.Response ) {
+    public async updateUser ( req: express.Request, res: express.Response ) {
         const userId = req.body.id;
 
         if ( !userId ) {
@@ -259,7 +258,183 @@ class UserController {
                 res.json(error);
             })
     }
-    
+
+    public async changeUserPassword ( req: express.Request, res: express.Response ) {
+        const userId: string = req.body.id;
+        const oldPass: string = req.body.oldPass;
+        const newPassword: string = req.body.password;
+
+        if ( !userId ) {
+            return res.json({
+                status: 403,
+                message: 'User is not authenticated'
+            })
+        }
+
+        const user = await UserModel.findById(userId);
+
+        if ( !user ) {
+            return res.json({
+                status: 404,
+                message: "User doesn't exist"
+            })
+        }
+
+        const existPass = await bcrypt.compare(oldPass, user.password);
+
+        if ( !existPass ) {
+            return res.json({
+                status: 400,
+                message: "Password is wrong"
+            })
+        }
+
+        const hashPassword = bcrypt.hashSync(newPassword, 3);
+
+        const options: object = { 
+            new: true
+        };
+
+        
+        const updatedUser = await UserModel.findByIdAndUpdate( userId, { $set: { password: hashPassword }, options });
+
+        if ( !updatedUser ) {
+            return res.json({
+                status: 500,
+                message: updatedUser
+            })
+        }
+
+        const userDto = new UserDto(updatedUser);
+
+        res.json({
+            status: 200,
+            user: userDto,
+            message: "User sucesfully updated"
+        })
+    }
+
+    public async uploadAvatar ( req: express.Request, res: express.Response ) {
+        const files: fileUpload.FileArray | undefined = req.files;
+        const {refreshToken} = req.cookies;
+
+        if ( !refreshToken ) {
+            return res.json({
+                status: 403,
+                message: "User is not authorized"
+            })
+        }
+
+        const userData: IUser = TokenHelper.validateRefreshToken(refreshToken);
+
+        if ( !userData ) {
+            return res.status(403).json({
+                status: 403,
+                message: "User is not authorized"
+            })
+        }
+
+        if ( !files ) {
+            return res.json({
+                status: 400,
+                message: "Files was not uploaded"
+            })
+        }
+
+        const user: IUser | null = await UserModel.findById(userData.id);
+        console.log(user)
+        if ( !user ) {
+            return res.status(400).json({
+                status: 400,
+                message: "User doesn't exist"
+            })
+        }
+
+        if ( user.avatar ) {
+            fs.unlinkSync("/Users/mkapustian/Projets/GoCleanBack/src/static/" + user.avatar);
+        }
+        
+        const avatarName: string = v4() + '.jpg';
+        let file: any = files.file;
+        
+        file.mv("/Users/mkapustian/Projets/GoCleanBack/src/static/" + avatarName)
+        
+        user.avatar = avatarName;
+        await user.save()
+        
+        const userDto = new UserDto( user );
+        
+        return res.json({
+            status: 200,
+            user: userDto,
+            message: "Avatar upload successfully"
+        })
+
+    }
+
+    public async resetPassword ( req: express.Request, res: express.Response ) {
+        const email = req.body.email ? req.body.email : '';
+        const link = req.params.link ? req.params.link : '';
+        const password = req.body.password ? bcrypt.hashSync(req.body.password, 3) : '';
+        
+        const model = UserModel;
+
+        if ( email ) {
+
+            const resetLink = v4();
+
+            model
+                .findOneAndUpdate( {email: email}, {reset_hash: resetLink}, {new: true} )
+                .exec( (err, user) => {
+                    if ( !user ) {
+                        return res.json({
+                            status: 404,
+                            message: "User doesn't exist"
+                        })
+                    } else if ( err ) {
+                        return res.json({err: err});
+                    }
+                } );
+
+            MailHelper.sendResetPasswordEmail( email, 'http://localhost:3000/api/resetLink/' + resetLink );
+            
+            res.cookie( 'reset_hash', resetLink, { maxAge: 60 * 60 * 1000, httpOnly: true } );
+
+            return res.json({
+                status: 200,
+                message: 'success'
+            })
+        } 
+
+        if ( link ) {
+
+            model
+                .findOne( {reset_hash: link} )
+                .exec( (err, user) => {
+                    if ( err ) {
+                        return res.json(err);
+                    }
+
+                    return res.redirect('http://localhost:8080/forgot-password/step2');
+                })
+        }
+
+        if ( req.cookies.reset_hash && password ) {
+            model 
+                .findOneAndUpdate( { reset_hash: req.cookies.reset_hash }, { password: password, reset_hash: '' }, { new: true } )
+                .then( ( user ) => {
+                    return res.json({
+                        status: 200,
+                        message: 'Password has changed successfully',
+                    })
+                })
+                .catch( (e) => {
+                    return res.json(e);
+                })
+        }
+
+        return res.json({err: 'Error'});
+    }
 }
 
 export default UserController;

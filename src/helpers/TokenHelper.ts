@@ -1,5 +1,6 @@
 import { TokenModel } from "../models";
 import jwt from 'jsonwebtoken';
+import {IUser} from '../models/User';
 
 class TokenHelper {
 
@@ -15,7 +16,7 @@ class TokenHelper {
 
     }
 
-    validateAccessToken ( accessToken: any) {
+    validateAccessToken ( accessToken: string): any {
         try {
             const userData = jwt.verify( accessToken, 'jwt-access-onehanded-pirate' );
             return userData;
@@ -24,16 +25,16 @@ class TokenHelper {
         }
     }
 
-    validateRefreshToken ( refreshToken: any) {
+    validateRefreshToken ( refreshToken: string ): any {
         try {
-            const userData = jwt.verify( refreshToken, 'jwt-resfresh-onehanded-pirate' );
+            const userData: string | jwt.JwtPayload = jwt.verify( refreshToken, 'jwt-resfresh-onehanded-pirate' );
             return userData;
         } catch (error) {
             return error
         }
     }
 
-    async saveToken (userId: any, refreshToken: string ) {
+    async saveToken (userId: string, refreshToken: string ) {
 
         const tokenData = await TokenModel.findOne( {user: userId} );
  

@@ -1,9 +1,10 @@
 import express from 'express';
 import { CalendarNoteModel } from '../models';
+import { ICalendarNote } from '../models/CalendarNotes';
 
 class CalendarNoteController {
 
-    async getAll ( req: express.Request, res: express.Response ) {
+    public async getAll ( req: express.Request, res: express.Response ) {
         CalendarNoteModel
             .find()
             .exec( function (err, notes) {
@@ -23,7 +24,7 @@ class CalendarNoteController {
             } )
     }
 
-    async deleteNote ( req: express.Request, res: express.Response ) {
+    public async deleteNote ( req: express.Request, res: express.Response ) {
         const noteId = req.params.id;
 
         CalendarNoteModel
@@ -42,7 +43,7 @@ class CalendarNoteController {
 
     }
 
-    async editNote ( req: express.Request, res: express.Response ) {
+    public async editNote ( req: express.Request, res: express.Response ) {
         const editedNoteId = req.body.id;
         const editedNoteValues = {
             type: req.body.type,
@@ -67,10 +68,10 @@ class CalendarNoteController {
             })
     }
 
-    async createNote ( req: express.Request, res: express.Response ) {
+    public async createNote ( req: express.Request, res: express.Response ) {
         const noteData = req.body;
         
-        const model = new CalendarNoteModel(noteData);
+        const model: ICalendarNote = new CalendarNoteModel(noteData);
 
         model
             .save()

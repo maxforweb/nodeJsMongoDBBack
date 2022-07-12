@@ -20,10 +20,24 @@ class AdsController {
     }
 
     getAll ( req: express.Request, res: express.Response ) {
-        
+        const sortValue = req.query.sort;
+        let sortOption = {};
+
+        switch (sortValue) {
+            case 'NEW':
+                sortOption = {createdAt: -1}
+            
+            case 'OLD':
+                sortOption = {createdAt: 1}
+            
+            default: 
+                sortOption = {}
+        }
+        console.log(sortOption)
         AdModel.find()
-        .populate('owner')
-        .exec( function (err, ads) {
+        .populate('owner', ['fullName', 'phone', 'avatar'])
+        .sort(sortOption)
+        .exec( function (err, ads) {            
             if ( err ) return res.json({
                 message: 'error'
             })
@@ -101,6 +115,34 @@ class AdsController {
                     message: err
                 })
             })
+    }
+
+    getPostsByUser ( req: express.Request, res: express.Response ) {
+
+        const userId = req.body.id;
+
+        AdModel
+            .find({owner: userId})
+            .then( (posts) => {
+                if ( !posts ) {
+                    res.json({
+                        status: 404,
+                        message: "You have no any posts yet"
+                    })
+
+                    res.json({
+                        status: 200, 
+                        posts: posts
+                    })
+                }
+            } )
+            .catch( err => {
+                res.json({
+                    status: 400,
+                    message: err
+                });
+            })
+
     }
     
 
