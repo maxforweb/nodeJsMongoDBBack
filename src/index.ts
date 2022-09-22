@@ -1,9 +1,7 @@
 import express from 'express'
 import mongoose from 'mongoose'
-import bodyParser from 'body-parser';
 import fileupload from 'express-fileupload'
 import cors from 'cors';
-import config from './config/default.json'
 import cookieParser from 'cookie-parser';
 import router from './router';
 import path from 'path';
@@ -31,9 +29,6 @@ mongoose.connect('mongodb+srv://TechUser:07hopore@gocleancluster.ukkxs.mongodb.n
   autoIndex:true,
 })
 
-
-
 app.listen(port, () => {
   console.log(`Example app listening at http://localhost:${port}`)
-
 })

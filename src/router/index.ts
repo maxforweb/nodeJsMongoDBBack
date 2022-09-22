@@ -4,23 +4,23 @@ import {UserController, AdsController, CalendarNotesController} from '../control
 
 const router = Router();
 
-const User = new UserController;
+const userController = new UserController;
 const Ad = new AdsController;
 const CalendarNote = new CalendarNotesController;
 
-router.get( '/user/:email', User.findUserByEmail );
-router.delete( '/user/:id', User.delete );
-router.post( '/user/create', User.registrateUser );
-router.post( '/user/login', User.loginUser );
-router.get( '/user', User.getAll );
-router.get( '/activate/:link', User.activateUser );
-router.post( '/user/logout', User.logout );
-router.get( '/refreshToken', User.refreshToken );
-router.post( '/user/update', User.updateUser );
-router.post( '/user/change-pass', User.changeUserPassword );
-router.post( '/user/avatar', User.uploadAvatar );
-router.post( '/user/resetPassword', User.resetPassword );
-router.post( '/reset-link/:link', User.resetPassword );
+router.get( '/user/:email', userController.findUserByEmail );
+router.delete( '/user/:id', userController.delete );
+router.post( '/user/create', userController.registrateUser );
+router.post( '/user/login', userController.loginUser );
+router.get( '/user', userController.getAll );
+router.get( '/activate/:link', userController.activateUser );
+router.post( '/user/logout', userController.logout );
+router.get( '/refreshToken', userController.refreshToken );
+router.post( '/user/update', userController.updateUser );
+router.post( '/user/change-pass', userController.changeUserPassword );
+router.post( '/user/avatar', userController.uploadAvatar );
+router.post( '/user/resetPassword', userController.resetPassword );
+router.post( '/reset-link/:link', userController.resetPassword );
 
 router.get( '/posts/:id', Ad.index );
 router.get( '/posts', Ad.getAll );

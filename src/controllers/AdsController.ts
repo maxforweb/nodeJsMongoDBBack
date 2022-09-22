@@ -4,9 +4,8 @@ import { AdModel } from '../models';
 class AdsController {
 
     index ( req: express.Request, res: express.Response ) {
-
         const reqId: string = req.params.id;
-        // console.log( req );
+        
         AdModel
         .find().or([ { owner: reqId }, { _id: reqId } ])
         .populate('owner')
@@ -33,7 +32,7 @@ class AdsController {
             default: 
                 sortOption = {}
         }
-        console.log(sortOption)
+        
         AdModel.find()
         .populate('owner', ['fullName', 'phone', 'avatar'])
         .sort(sortOption)
@@ -50,13 +49,10 @@ class AdsController {
             }
 
             res.json(ads)
-        })
-
-        
+        }) 
     }
 
     create ( req: express.Request, res: express.Response ) {
-
         const postData = {
             title: req.body.title,
             description: req.body.description,
@@ -65,8 +61,6 @@ class AdsController {
             area: req.body.area,
             owner: req.body.owner
         }
-
-        console.log(postData)
 
         const newAd = new AdModel( postData );
 
@@ -78,7 +72,6 @@ class AdsController {
             .catch( err => {
                 res.json( err )
             })
-
     }
 
     update ( req: express.Request, res: express.Response ) {
@@ -98,7 +91,6 @@ class AdsController {
     }
 
     delete ( req: express.Request, res: express.Response) {
-
         const id = req.params.id;
 
         AdModel
@@ -118,7 +110,6 @@ class AdsController {
     }
 
     getPostsByUser ( req: express.Request, res: express.Response ) {
-
         const userId = req.body.id;
 
         AdModel
@@ -142,10 +133,7 @@ class AdsController {
                     message: err
                 });
             })
-
     }
-    
-
 }
 
 export default AdsController

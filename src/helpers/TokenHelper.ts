@@ -1,10 +1,14 @@
 import { TokenModel } from "../models";
 import jwt from 'jsonwebtoken';
-import {IUser} from '../models/User';
+import { UserDto } from "../dtos";
 
+export interface Tokens {
+    accessToken: string,
+    refreshToken: string
+}
 class TokenHelper {
 
-    generateToken ( payload: any ) {
+    generateToken ( payload: UserDto ): Tokens {
 
         const accessToken = jwt.sign( payload,  'jwt-access-onehanded-pirate', {expiresIn: '30m'} );
         const refreshToken = jwt.sign( payload, 'jwt-resfresh-onehanded-pirate', {expiresIn: '30d'} );

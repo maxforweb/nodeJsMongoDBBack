@@ -1,4 +1,4 @@
-import express from 'express'
+import {Request, Response} from 'express'
 import bcrypt, { hash } from 'bcrypt';
 import {v4} from 'uuid';
 import fileUpload from 'express-fileupload'
@@ -9,94 +9,76 @@ import { UserModel } from '../models';
 import { MailHelper, TokenHelper } from '../helpers';
 import { IUser } from '../models/User';
 import { Model } from 'mongoose';
+import { UserService } from '../services';
+import { resolveSoa } from 'dns';
 
 class UserController {
-    public async findUserByEmail ( req: express.Request, res: express.Response): Promise<void> {
+    public async findUserByEmail ( req: Request, res: Response): Promise<Response> {
         const email: string = req.params.email;
-
-        UserModel.findOne( {email : email}, (err, user) => {
-            if( err ) {
+    
+        try {
+            const user = await UserService.findUserByEmail(email);
+            if(!user) {
                 return res.status(404).json({
-                    message: "Not found"
+                    message: 'User does not exist'
                 })
             }
-            res.json(user);
-        })
+            return res.json(user);
+        } catch (err) {
+            return res.status(400).json(err);
+        }
     }
 
-    public async getAll( req: express.Request, res: express.Response ): Promise<void> {
-        UserModel.find()
-        .exec( function (err, users) {
-            if ( err ) return res.json({
-                message: 'error'
-            })
-
-
-            if ( !users ) {
+    public async getAll( _: Request, res: Response ): Promise<Response> {
+        try {
+            const users = await UserService.getAllUsers();
+            if (!users){
                 return res.json({
-                    message: 'empty'
+                    status: 404,
+                    message: 'There is no users in database'
                 })
             }
-
-            res.json(users)
-        })
+            return res.json(users)
+        } catch (err) {
+            return res.json({
+                status: 400,
+                message: 'Error while requesting all users',
+                error: err,
+            })
+        }
     }
 
-    public async registrateUser (req: express.Request, res: express.Response) {
-  
-        const hashPassword = bcrypt.hashSync(req.body.password, 3);
-        
-        const activationLink = v4();
-
-        const postData: Partial<IUser> = { 
+    public async registrateUser (req: Request, res: Response): Promise<Response> {
+        const password = bcrypt.hashSync(req.body.password, 3); 
+        const confirm_hash = v4();
+        const postData: IUser = { 
             email: req.body.email,
             fullName: req.body.name,
             phone: req.body.phone,
             lastName: req.body.lastName,
-            password: hashPassword,
-            confirm_hash: activationLink,
+            password,
+            confirm_hash,
+            confirmed: false
         }
 
-        const model: Model<IUser, {}> = UserModel;
-        const user: IUser | null = await model.findOne({ email: postData.email  });
-        
-        if ( user ) {
-            return res.status(400).json({
-                message: "Такой пользователь уже существует"
-            });
-        }
-
-        const newUser =  new UserModel( postData );
-        const userDto = new UserDto( newUser );
-        
-        const tokens = TokenHelper.generateToken( {...userDto} );
-
-        TokenHelper.saveToken( userDto.id, tokens.refreshToken );
-        
-        res.cookie('refreshToken', tokens.refreshToken, {maxAge: 30 * 24 * 60 * 60 * 1000, httpOnly: true} );
-        
-        MailHelper.sendActivationMail( userDto.email, "http://localhost:3000/api/activate/" + activationLink );
-        
-        newUser.save()
-            .then( (obj: any) => {
-
-                res.json({ 
-                    tokens,
-                    user: userDto
-                });
-
-            })
-            .catch( (err: any) => {
-                res.json(err)
-            } );
+        try {
+            const user = await UserService.registrateUser(postData);
+            res.cookie('refreshToken', user.tokens.refreshToken, { maxAge: 30 * 24 * 60 * 60 * 1000, httpOnly: true });
             
+            return res.json(user)
+        } catch(err: any) {
+            console.log(err);
+            return res.status(400).json({
+                message: err.message,
+            })
+        }
     }
 
-    async loginUser ( req: express.Request, res: express.Response ) {
+    async loginUser ( req: Request, res: Response ) {
         const email: string = req.body.email;
         const password: string = req.body.password;
 
-        const user: IUser | null = await UserModel.findOne({email: email});
+        const user = await UserModel.findOne({email: email});
 
         if ( !user ) {
             return res.json({
@@ -126,10 +108,9 @@ class UserController {
             user: userDto,
             status: 200
         });
-
     }
 
-    async logout ( req: express.Request, res: express.Response ) {
+    async logout ( req: Request, res: Response ) {
 
         const {refreshToken} = req.cookies;
         const token = await TokenHelper.deleteToken(refreshToken);
@@ -139,7 +120,7 @@ class UserController {
         return res.json(token);
     }
 
-    public async delete ( req: express.Request, res: express.Response ) {
+    public async delete ( req: Request, res: Response ) {
         const id: string = req.params.id;
 
         UserModel.findOneAndRemove( { _id: id } )
@@ -157,7 +138,7 @@ class UserController {
         })
     }
 
-    public async activateUser ( req: express.Request, res: express.Response ) {
+    public async activateUser ( req: Request, res: Response ) {
         const link = req.params.link;
 
         UserModel
@@ -171,7 +152,7 @@ class UserController {
         });
     }
 
-    public async refreshToken ( req: express.Request, res: express.Response ) {
+    public async refreshToken ( req: Request, res: Response ) {
         
         const {refreshToken} = req.cookies;
         
@@ -212,7 +193,7 @@ class UserController {
         });
     }
 
-    public async updateUser ( req: express.Request, res: express.Response ) {
+    public async updateUser ( req: Request, res: Response ) {
         const userId = req.body.id;
 
         if ( !userId ) {
@@ -259,7 +240,7 @@ class UserController {
             })
     }
 
-    public async changeUserPassword ( req: express.Request, res: express.Response ) {
+    public async changeUserPassword ( req: Request, res: Response ) {
         const userId: string = req.body.id;
         const oldPass: string = req.body.oldPass;
         const newPassword: string = req.body.password;
@@ -314,7 +295,7 @@ class UserController {
         })
     }
 
-    public async uploadAvatar ( req: express.Request, res: express.Response ) {
+    public async uploadAvatar ( req: Request, res: Response ) {
         const files: fileUpload.FileArray | undefined = req.files;
         const {refreshToken} = req.cookies;
 
@@ -325,7 +306,7 @@ class UserController {
             })
         }
 
-        const userData: IUser = TokenHelper.validateRefreshToken(refreshToken);
+        const userData = TokenHelper.validateRefreshToken(refreshToken);
 
         if ( !userData ) {
             return res.status(403).json({
@@ -341,8 +322,8 @@ class UserController {
             })
         }
 
-        const user: IUser | null = await UserModel.findById(userData.id);
-        console.log(user)
+        const user = await UserModel.findById(userData.id);
+
         if ( !user ) {
             return res.status(400).json({
                 status: 400,
@@ -372,7 +353,7 @@ class UserController {
 
     }
 
-    public async resetPassword ( req: express.Request, res: express.Response ) {
+    public async resetPassword ( req: Request, res: Response ) {
         const email = req.body.email ? req.body.email : '';
         const link = req.params.link ? req.params.link : '';
         const password = req.body.password ? bcrypt.hashSync(req.body.password, 3) : '';
