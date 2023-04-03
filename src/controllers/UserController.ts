@@ -13,6 +13,12 @@ import { UserService } from '../services';
 import { resolveSoa } from 'dns';
 
 class UserController {
+    private readonly userService: UserService;
+
+    constructor() {
+        this.userService = new UserService;
+    }
+
     public async findUserByEmail ( req: Request, res: Response): Promise<Response> {
         const email: string = req.params.email;
     
@@ -31,7 +37,7 @@ class UserController {
 
     public async getAll( _: Request, res: Response ): Promise<Response> {
         try {
-            const users = await UserService.getAllUsers();
+            const users = await this.userService.getAllUsers();
             if (!users){
                 return res.json({
                     status: 404,
@@ -49,68 +55,51 @@ class UserController {
     }
 
     public async registrateUser (req: Request, res: Response): Promise<Response> {
-        const password = bcrypt.hashSync(req.body.password, 3); 
         const confirm_hash = v4();
         const postData: IUser = { 
             email: req.body.email,
             fullName: req.body.name,
             phone: req.body.phone,
             lastName: req.body.lastName,
-            password,
+            password: req.body.password,
             confirm_hash,
             confirmed: false
         }
 
         try {
-            const user = await UserService.registrateUser(postData);
+            const user = await this.userService.registrate(postData);
             res.cookie('refreshToken', user.tokens.refreshToken, { maxAge: 30 * 24 * 60 * 60 * 1000, httpOnly: true });
             
             return res.json(user)
         } catch(err: any) {
-            console.log(err);
             return res.status(400).json({
                 message: err.message,
             })
         }
     }
 
-    async loginUser ( req: Request, res: Response ) {
+    public async loginUser ( req: Request, res: Response ) {
         const email: string = req.body.email;
         const password: string = req.body.password;
-
-        const user = await UserModel.findOne({email: email});
-
-        if ( !user ) {
-            return res.json({
-                status: 404,
-                message: "User doesn't exist"
-            })
-        }
-
-        const existPass: boolean = await bcrypt.compare( password, user.password );
-
-        if ( !existPass ) {
-            return res.json( {
-                status: 403,
-                message: "Wrong password"
-            } )
-        }
-
-        const userDto: UserDto = new UserDto( user );
-        const tokens = TokenHelper.generateToken( { ...userDto } );
-
-        await TokenHelper.saveToken( user._id, tokens.refreshToken );
         
-        res.cookie('refreshToken', tokens.refreshToken, {maxAge: 30 * 24 * 60 * 60 * 1000, httpOnly: true} );
-
-        return res.json({
-            tokens,
-            user: userDto,
-            status: 200
-        });
+        try {
+            const {userDto, tokens} = await this.userService.login({email, password});
+            
+            res.cookie('refreshToken', tokens.refreshToken, {maxAge: 30 * 24 * 60 * 60 * 1000, httpOnly: true} );
+            return res.json({
+                tokens,
+                user: userDto,
+                status: 200
+            });
+        } catch (err: any) {
+            return res.status(err.status).json({
+                status: err.status,
+                message: err.message
+            });
+        }
     }
 
-    async logout ( req: Request, res: Response ) {
+    public async logout ( req: Request, res: Response ) {
 
         const {refreshToken} = req.cookies;
         const token = await TokenHelper.deleteToken(refreshToken);
@@ -198,7 +187,7 @@ class UserController {
 
         if ( !userId ) {
             return res.json({
-                sattus: 403,
+                sattus: 401,
                 message: 'Auth error'
             })
         }
@@ -241,18 +230,15 @@ class UserController {
     }
 
     public async changeUserPassword ( req: Request, res: Response ) {
-        const userId: string = req.body.id;
-        const oldPass: string = req.body.oldPass;
-        const newPassword: string = req.body.password;
-
-        if ( !userId ) {
+        const {id, oldPass, password} = req.body;
+        if ( !id ) {
             return res.json({
                 status: 403,
                 message: 'User is not authenticated'
             })
         }
 
-        const user = await UserModel.findById(userId);
+        const user = await UserModel.findById(id);
 
         if ( !user ) {
             return res.json({
@@ -270,14 +256,14 @@ class UserController {
             })
         }
 
-        const hashPassword = bcrypt.hashSync(newPassword, 3);
+        const hashPassword = bcrypt.hashSync(password, 3);
 
         const options: object = { 
             new: true
         };
 
         
-        const updatedUser = await UserModel.findByIdAndUpdate( userId, { $set: { password: hashPassword }, options });
+        const updatedUser = await UserModel.findByIdAndUpdate( id, { $set: { password: hashPassword }, options });
 
         if ( !updatedUser ) {
             return res.json({

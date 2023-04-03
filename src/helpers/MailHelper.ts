@@ -1,4 +1,5 @@
 import nodemailer from 'nodemailer';
+import { getSecret } from '../config';
 
 class MailHelper {
     transporter: any;
@@ -8,8 +9,8 @@ class MailHelper {
 
     constructor () {
         this.host = 'smtp.gmail.com';
-        this.login = 'maxkapustian@gmail.com';
-        this.password = 'jaghir-naXgaj-nywpu8';
+        this.login = getSecret('smtpMail');
+        this.password = getSecret('smtpPassword');
 
         this.transporter = nodemailer.createTransport({
             host: this.host,

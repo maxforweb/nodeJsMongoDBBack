@@ -1,6 +1,7 @@
 import { TokenModel } from "../models";
 import jwt from 'jsonwebtoken';
 import { UserDto } from "../dtos";
+import { getSecret } from "../config";
 
 export interface Tokens {
     accessToken: string,
@@ -10,8 +11,8 @@ class TokenHelper {
 
     generateToken ( payload: UserDto ): Tokens {
 
-        const accessToken = jwt.sign( payload,  'jwt-access-onehanded-pirate', {expiresIn: '30m'} );
-        const refreshToken = jwt.sign( payload, 'jwt-resfresh-onehanded-pirate', {expiresIn: '30d'} );
+        const accessToken = jwt.sign( payload,  getSecret('JWT_ACCESS_TOKEN'), {expiresIn: '30m'} );
+        const refreshToken = jwt.sign( payload, getSecret('JWT_REFRESH_ACCESS_TOKEN'), {expiresIn: '30d'} );
 
         return {
             accessToken,
@@ -22,7 +23,7 @@ class TokenHelper {
 
     validateAccessToken ( accessToken: string): any {
         try {
-            const userData = jwt.verify( accessToken, 'jwt-access-onehanded-pirate' );
+            const userData = jwt.verify( accessToken, getSecret('JWT_ACCESS_TOKEN') );
             return userData;
         } catch (error) {
             return error;
@@ -31,7 +32,7 @@ class TokenHelper {
 
     validateRefreshToken ( refreshToken: string ): any {
         try {
-            const userData: string | jwt.JwtPayload = jwt.verify( refreshToken, 'jwt-resfresh-onehanded-pirate' );
+            const userData: string | jwt.JwtPayload = jwt.verify( refreshToken, getSecret('JWT_REFRESH_ACCESS_TOKEN') );
             return userData;
         } catch (error) {
             return error

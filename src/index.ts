@@ -5,6 +5,8 @@ import cors from 'cors';
 import cookieParser from 'cookie-parser';
 import router from './router';
 import path from 'path';
+import { getSecret } from './config';
+
 console.clear()
 
 const app = express()
@@ -22,7 +24,7 @@ app.use('/api', router);
 
 mongoose.set('bufferCommands', false);
 
-mongoose.connect('mongodb+srv://TechUser:07hopore@gocleancluster.ukkxs.mongodb.net/clean?retryWrites=true&w=majority', {
+mongoose.connect(getSecret('mongodbAuth'), {
   useNewUrlParser: true, 
   useUnifiedTopology: true,
   useFindAndModify: false,
