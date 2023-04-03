@@ -1,0 +1,14 @@
+# Ignore artifacts:
+.idea
+.env
+dist
+node_modules
+yarn-error.log
+.DS_Store
+
+# static
+src/public
+src/react/*.js
+
+# jest
+coverage

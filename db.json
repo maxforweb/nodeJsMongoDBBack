@@ -1,128 +1,128 @@
 {
-    "ads": [
-        {
-            "_id": "5fa9613c9acba2cef0ae271f",
-            "title": "Квартира на ул. Колонтаевская 53",
-            "subTitle": "Неполная уборка",
-            "img": "",
-            "price": "300 UAH",
-            "adress": "Some adress",
-            "area": "some area",
-            
-            "user": {
-                "_id": "5f9aa2147cd3cc33efc053c7",
-                "name": "Rhodes ",
-                "surname": "Knight",
-                "phone": "+380 (994) 530-2355",
-                "address": "228 Jefferson Street, Brule, 138",
-                "avatar": ""
-            }
-        },
-        {
-            "_id": "5fa9613cc5b5662d8bbbb081",
-            "title": "Квартира на ул. Колонтаевская 53",
-            "subTitle": "Неполная уборка",
-            "img": "",
-            "price": "300 UAH",
-            "adress": "Some adress",
-            "area": "some area",
-            "user": {
-                "_id": "5f9aa2147aae5fb6d4223518",
-                "name": "Chambers ",
-                "surname": "Palmer",
-                "phone": "+380 (867) 459-3377",
-                "address": "115 Joval Court, Brownlee, 9362",
-                "avatar": ""
-            }
-        },
-        {
-            "_id": "5fa9613ca26e748bd1a8a272",
-            "title": "Квартира на ул. Колонтаевская 53",
-            "subTitle": "Неполная уборка",
-            "img": "",
-            "price": "300 UAH",
-            "adress": "Some adress",
-            "area": "some area",
-            "user": {
-                "_id": "5f9aa21431479a96550f10dd",
-                "name": "Eileen ",
-                "surname": "Harding",
-                "phone": "+380 (992) 530-3130",
-                "address": "418 Dearborn Court, Waterview, 990",
-                "avatar": ""
-              }
-        },
-        {
-            "_id": "5fa9613c5cee4eb5637496bf",
-            "title": "Квартира на ул. Колонтаевская 53",
-            "subTitle": "Неполная уборка",
-            "img": "",
-            "price": "300 UAH",
-            "adress": "Some adress",
-            "area": "some area",
-            "user":  {
-                "_id": "5f9aa2142f925cfff73f596b",
-                "name": "Young ",
-                "surname": "Dunn",
-                "phone": "+380 (998) 544-3760",
-                "address": "365 Seigel Street, Oceola, 8880",
-                "avatar": ""
-              }
-        }
-    ],
+	"ads": [
+		{
+			"_id": "5fa9613c9acba2cef0ae271f",
+			"title": "Квартира на ул. Колонтаевская 53",
+			"subTitle": "Неполная уборка",
+			"img": "",
+			"price": "300 UAH",
+			"adress": "Some adress",
+			"area": "some area",
 
-    "users": [
-        [
-            {
-              "_id": "5f9aa2147cd3cc33efc053c7",
-              "age": 23,
-              "name": "Rhodes ",
-              "surname": "Knight",
-              "gender": "male",
-              "email": "rhodesknight@matrixity.com",
-              "phone": "+380 (994) 530-2355",
-              "address": "228 Jefferson Street, Brule, 138"
-            },
-            {
-              "_id": "5f9aa2142f925cfff73f596b",
-              "age": 36,
-              "name": "Young ",
-              "surname": "Dunn",
-              "gender": "female",
-              "email": "youngdunn@matrixity.com",
-              "phone": "+380 (998) 544-3760",
-              "address": "365 Seigel Street, Oceola, 8880"
-            },
-            {
-              "_id": "5f9aa21468307daaeb2bff08",
-              "age": 21,
-              "name": "Carolyn ",
-              "surname": "Rogers",
-              "gender": "female",
-              "email": "carolynrogers@matrixity.com",
-              "phone": "+380 (850) 589-3981",
-              "address": "387 Herzl Street, Brooktrails, 5803"
-            },
-            {
-              "_id": "5f9aa21431479a96550f10dd",
-              "age": 24,
-              "name": "Eileen ",
-              "surname": "Harding",
-              "gender": "female",
-              "email": "eileenharding@matrixity.com",
-              "phone": "+380 (992) 530-3130",
-              "address": "418 Dearborn Court, Waterview, 990"
-            },
-            {
-              "_id": "5f9aa2147aae5fb6d4223518",
-              "age": 23,
-              "name": "Chambers ",
-              "surname": "Palmer",
-              "gender": "male",
-              "email": "chamberspalmer@matrixity.com",
-              "phone": "+380 (867) 459-3377",
-              "address": "115 Joval Court, Brownlee, 9362"
-            }
-          ]
-    ]
+			"user": {
+				"_id": "5f9aa2147cd3cc33efc053c7",
+				"name": "Rhodes ",
+				"surname": "Knight",
+				"phone": "+380 (994) 530-2355",
+				"address": "228 Jefferson Street, Brule, 138",
+				"avatar": ""
+			}
+		},
+		{
+			"_id": "5fa9613cc5b5662d8bbbb081",
+			"title": "Квартира на ул. Колонтаевская 53",
+			"subTitle": "Неполная уборка",
+			"img": "",
+			"price": "300 UAH",
+			"adress": "Some adress",
+			"area": "some area",
+			"user": {
+				"_id": "5f9aa2147aae5fb6d4223518",
+				"name": "Chambers ",
+				"surname": "Palmer",
+				"phone": "+380 (867) 459-3377",
+				"address": "115 Joval Court, Brownlee, 9362",
+				"avatar": ""
+			}
+		},
+		{
+			"_id": "5fa9613ca26e748bd1a8a272",
+			"title": "Квартира на ул. Колонтаевская 53",
+			"subTitle": "Неполная уборка",
+			"img": "",
+			"price": "300 UAH",
+			"adress": "Some adress",
+			"area": "some area",
+			"user": {
+				"_id": "5f9aa21431479a96550f10dd",
+				"name": "Eileen ",
+				"surname": "Harding",
+				"phone": "+380 (992) 530-3130",
+				"address": "418 Dearborn Court, Waterview, 990",
+				"avatar": ""
+			}
+		},
+		{
+			"_id": "5fa9613c5cee4eb5637496bf",
+			"title": "Квартира на ул. Колонтаевская 53",
+			"subTitle": "Неполная уборка",
+			"img": "",
+			"price": "300 UAH",
+			"adress": "Some adress",
+			"area": "some area",
+			"user": {
+				"_id": "5f9aa2142f925cfff73f596b",
+				"name": "Young ",
+				"surname": "Dunn",
+				"phone": "+380 (998) 544-3760",
+				"address": "365 Seigel Street, Oceola, 8880",
+				"avatar": ""
+			}
+		}
+	],
+
+	"users": [
+		[
+			{
+				"_id": "5f9aa2147cd3cc33efc053c7",
+				"age": 23,
+				"name": "Rhodes ",
+				"surname": "Knight",
+				"gender": "male",
+				"email": "rhodesknight@matrixity.com",
+				"phone": "+380 (994) 530-2355",
+				"address": "228 Jefferson Street, Brule, 138"
+			},
+			{
+				"_id": "5f9aa2142f925cfff73f596b",
+				"age": 36,
+				"name": "Young ",
+				"surname": "Dunn",
+				"gender": "female",
+				"email": "youngdunn@matrixity.com",
+				"phone": "+380 (998) 544-3760",
+				"address": "365 Seigel Street, Oceola, 8880"
+			},
+			{
+				"_id": "5f9aa21468307daaeb2bff08",
+				"age": 21,
+				"name": "Carolyn ",
+				"surname": "Rogers",
+				"gender": "female",
+				"email": "carolynrogers@matrixity.com",
+				"phone": "+380 (850) 589-3981",
+				"address": "387 Herzl Street, Brooktrails, 5803"
+			},
+			{
+				"_id": "5f9aa21431479a96550f10dd",
+				"age": 24,
+				"name": "Eileen ",
+				"surname": "Harding",
+				"gender": "female",
+				"email": "eileenharding@matrixity.com",
+				"phone": "+380 (992) 530-3130",
+				"address": "418 Dearborn Court, Waterview, 990"
+			},
+			{
+				"_id": "5f9aa2147aae5fb6d4223518",
+				"age": 23,
+				"name": "Chambers ",
+				"surname": "Palmer",
+				"gender": "male",
+				"email": "chamberspalmer@matrixity.com",
+				"phone": "+380 (867) 459-3377",
+				"address": "115 Joval Court, Brownlee, 9362"
+			}
+		]
+	]
 }
