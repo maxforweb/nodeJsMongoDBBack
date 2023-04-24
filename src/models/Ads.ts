@@ -1,8 +1,8 @@
 import mongoose, { Schema, Document } from 'mongoose';
-import { IUser } from './User';
+import { UserSchema } from '../types/User';
 
 export interface IAd extends Document {
-	owner: IUser | string;
+	owner: UserSchema | string;
 	title: string;
 	description: string;
 	img: string;

@@ -1,4 +1,4 @@
-import { IUserModel } from '../models/User';
+import { UserModelInterface } from "../types/User";
 
 export default class UserDto {
 	email: string;
@@ -9,7 +9,7 @@ export default class UserDto {
 	lastName: string;
 	avatar: string;
 
-	constructor(model: IUserModel) {
+	constructor(model: UserModelInterface) {
 		this.email = model.email;
 		this.id = model._id;
 		this.isActivated = model.confirmed;

@@ -1,8 +1,8 @@
 import mongoose, { Schema, Document } from 'mongoose';
-import { IUser } from './User';
+import { UserSchema } from '../types/User';
 
 export interface IToken extends Document {
-	user: IUser | string;
+	user: UserSchema | string;
 	token: string;
 }
 
